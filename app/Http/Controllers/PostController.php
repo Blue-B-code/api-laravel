@@ -19,7 +19,15 @@ class PostController extends Controller implements HasMiddleware
 
     public function index()
     {
-        return Post::with(['user', 'comments.user', 'likes'])->latest()->get();
+        return Post::with(['user', 'comments.user', 'likes'])
+                 ->withCount('likes')
+                 ->latest()
+                 ->get()
+                 ->map(function($post) {
+                     return array_merge($post->toArray(), [
+                         'likes_count' => $post->likes_count
+                     ]);
+                 });
     }
 
     public function store(Request $request)
